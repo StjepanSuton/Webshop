@@ -39,12 +39,35 @@ function Checkout() {
       <main className="lg:flex max-w-screen-2xl mx-auto">
         <div className="flex-grow m-5 shadow-sm">
           <Image
-            src="https://links.papareact.com/ikj"
-            width={1020}
+            src="https://links.papareact.com/dyz"
+            width={1520}
             height={250}
             objectFit="contain"
             alt=""
           />
+          {total.totalQuantity > 0 && (
+            <div className="relative lg:fixed lg:top-10 right-0  flex flex-col bg-white p-10 shadow-lg rounded-lg">
+              <>
+                <h2 className="whitespace-nowrap">
+                  SubTotal {total.totalQuantity} items:{" "}
+                  <span className="font-bold">
+                    <Currency quantity={total.totalItemsPrice} />
+                  </span>
+                </h2>
+                <button
+                  role="link"
+                  onClick={createCheckouSession}
+                  disabled={!session}
+                  className={`button mt-2 ${
+                    !session &&
+                    "from-gray-300 to-gray-500 border-gray-200 text-gray-50 cursor-not-allowed"
+                  }`}
+                >
+                  {!session ? "Sign in to checkout" : "Procede to checkout"}
+                </button>
+              </>
+            </div>
+          )}
           <div className="flex flex-col p-5 space-y-10 bg-white">
             <h1 className="text-3xl border-b pb-4">
               {items.length === 0
@@ -59,36 +82,13 @@ function Checkout() {
                 title={item.title}
                 rating={item.rating}
                 price={item.price}
+                quantity={item.quantity}
                 description={item.description}
                 category={item.category}
                 image={item.image}
               />
             ))}
           </div>
-        </div>
-        <div className="flex flex-col bg-white p-10 shadow-md">
-          {" "}
-          {items.length > 0 && (
-            <>
-              <h2 className="whitespace-nowrap">
-                SubTotal {items.length} items:{" "}
-                <span className="font-bold">
-                  <Currency quantity={total} />
-                </span>
-              </h2>
-              <button
-                role="link"
-                onClick={createCheckouSession}
-                disabled={!session}
-                className={`button mt-2 ${
-                  !session &&
-                  "from-gray-300 to-gray-500 border-gray-200 text-gray-50 cursor-not-allowed"
-                }`}
-              >
-                {!session ? "Sign in to checkout" : "Procede to checkout"}
-              </button>
-            </>
-          )}
         </div>
       </main>
     </div>

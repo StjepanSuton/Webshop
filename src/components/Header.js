@@ -1,5 +1,5 @@
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   MenuIcon,
   SearchIcon,
@@ -8,19 +8,60 @@ import {
 import { SessionProvider, signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
-import { selectItems } from "../slices/basketSlice";
+import { selectItems, selectTotal } from "../slices/basketSlice";
+import SearchTerm from "./SearchTerm";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Header() {
+  const mostRecentItem = useSelector((state) => state.basket.mostRecentItem);
   const { data: session, status } = useSession();
   const router = useRouter();
   const items = useSelector(selectItems);
+  const total = useSelector(selectTotal);
+  const [products, setProducts] = useState();
+  const [searchTerm, setSearchTerm] = useState();
+  const [focused, setFocused] = useState(false);
+  const [numberOfItems, setNumberOfItems] = useState(total.totalQuantity);
+  const filterItems = (e) => {
+    e.preventDefault();
+    setSearchTerm(e.target.value);
+  };
+
+  useEffect(() => {
+    const fetchProducst = async () => {
+      const response = await fetch(`https://fakestoreapi.com/products`);
+      const responseData = await response.json();
+      setProducts(responseData);
+    };
+    fetchProducst();
+  }, []);
+
+  useEffect(() => {
+    const notify = () =>
+      toast.success(`${mostRecentItem.title} added to your cart`, {
+        position: toast.POSITION.BOTTOM_LEFT,
+        autoClose: 1500,
+      });
+    if (
+      mostRecentItem.title === undefined ||
+      numberOfItems >= total.totalQuantity
+    ) {
+      setNumberOfItems(total.totalQuantity);
+      return;
+    } else {
+      notify();
+    }
+    setNumberOfItems(total.totalQuantity);
+  }, [mostRecentItem, total]);
+
   return (
     <header>
-      <div className="flex items-center bg-amazon_blue p-1 flex-grow py-2">
+      <div className="relative flex items-center bg-amazon_blue p-1 flex-grow py-2 z-50">
         <div className="mt-2 flex items-center flex-grow sm:flex-grow-0">
           <Image
             onClick={() => router.push("/")}
-            src="https://links.papareact.com/f90"
+            src="https://i.imgur.com/atySqDC.png"
             width={150}
             height={40}
             objectFit="contain"
@@ -28,53 +69,62 @@ function Header() {
           />
         </div>
 
-        <div className="hidden sm:flex items-center h-10 rounded-md flex-grow cursor-pointer bg-yellow-400 hover:bg-yellow-600">
+        <div
+          onMouseEnter={() => setFocused(true)}
+          onMouseLeave={() => setFocused(false)}
+          className="hidden sm:flex relative items-center h-10 rounded-md flex-grow cursor-pointer bg-green-400 hover:bg-green-600"
+        >
           <input
+            placeholder="Start your Search"
+            onChange={filterItems}
             className="p-2 h-full flex-grow flex-shrink rounded-l-md focus:outline-none px-4"
             type="text"
           />
           <SearchIcon className="h-12 p-4" />
+          {focused && (
+            <div className="absolute top-10 scrollbar-hide rounded-lg h-80 overflow-y-scroll">
+              {products
+                ?.filter((product) => {
+                  if (searchTerm?.length < 3) {
+                    return;
+                  } else if (
+                    product.title
+                      .toLowerCase()
+                      .includes(searchTerm?.toLowerCase())
+                  ) {
+                    return product;
+                  }
+                })
+                .map((product, i) => (
+                  <SearchTerm key={product + i} product={product} />
+                ))}
+            </div>
+          )}
         </div>
         {/* */}
-        <div className="text-white flex items-center text-xs space-x-6 mx-6 whitespace-nowrap">
+        <div className="text-white flex items-center text-xs space-x-6 md:mx-6 mr-6">
           <div onClick={!session ? signIn : signOut} className="link">
-            <p>{session ? `Hello ${session.user.name}` : "Sign in"}</p>
-            <p className="font-extrabold md:text-sm">Account & LIst </p>
+            <p className="flex-grow w-24 font-extrabold">
+              {session ? ` ${session.user.name}` : "Sign in"}
+            </p>
           </div>
           <div onClick={() => router.push("/orders")} className="link">
-            <p>Return</p>
-            <p className="font-extrabold md:text-sm">& Orders</p>
+            <p className="justify-self-center items-center font-extrabold md:text-sm">
+              Orders
+            </p>
           </div>
           <div
             onClick={() => router.push("/checkout")}
             className="relative link flex items-center"
           >
-            <span className="absolute top-0 right-0 md:right-10 h-4 w-4 bg-yellow-400 text-center rounded-full text-black font-bold">
-              {items.length}
+            <ShoppingCartIcon className="h-8 md:h-10" />
+            <span className="absolute top-0 right-0 h-4 w-4 bg-green-200 text-center rounded-full text-black">
+              {total.totalQuantity}
             </span>
-            <ShoppingCartIcon className="h-10" />
-            <p className="hidden md:inline font-extrabold md:text-sm mt-2">
-              Basket
-            </p>
           </div>
         </div>
       </div>
-
-      {/* */}
-      <div className="text-white psace-x-3 p-2 pl-6 text-sm flex items-center bg-amazon_blue-light">
-        <div className="link flex items-center">
-          <MenuIcon className="h-6 mr-1" />
-          <p className="link">Prime Video</p>
-          <p className="link">Amazon Buisness</p>
-          <p className="link">Electronics</p>
-          <p className="link hidden lg:inline-flex">Electronics</p>
-          <p className="link hidden lg:inline-flex">Food</p>
-          <p className="link hidden lg:inline-flex">Prime</p>
-          <p className="link hidden lg:inline-flex">Buy Again</p>
-          <p className="link hidden lg:inline-flex">Shooper Tolkit</p>
-          <p className="link hidden lg:inline-flex">Health and Personal</p>
-        </div>
-      </div>
+      <ToastContainer />
     </header>
   );
 }

@@ -7,7 +7,7 @@
     @apply cursor-pointer hover:underline;
   }
   .button {
-    @apply p-2 text-xs md:text-sm bg-gradient-to-br from-yellow-200 
-    to-yellow-500 border border-yellow-200 rounded-sm focus:outline-none  focus:ring-yellow-500 active:from-yellow-500;
+    @apply font-semibold shadow-lg rounded-lg p-2 text-xs md:text-sm bg-gradient-to-br from-green-200 
+    to-green-500 border border-green-200 focus:outline-none  focus:ring-green-500 active:from-green-500;
   }
 }

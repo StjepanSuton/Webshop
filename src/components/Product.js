@@ -22,18 +22,17 @@ function Product({ id, title, price, description, category, image }) {
       description,
       category,
       image,
+      rating,
     };
-
     dispatch(addToBasket(product));
   };
 
   return (
-    <div className="relative flex flex-col m-5 bg-white z-30 p-10">
-      <p className="absolute top-2 right-2 text-xs italic text-gray-400">
-        {category}
-      </p>
+    <div className="relative flex flex-col m-5 bg-white z-30 p-10 shadow-lg rounded-lg">
       <Image src={image} height={200} width={200} objectFit="contain" />
-      <h4 className="my-3">{title}</h4>
+      <h4 className="my-3 text-center md:text-left font-bold line-clamp-2">
+        {title}
+      </h4>
       <div className="flex">
         {Array(rating)
           .fill()
@@ -42,7 +41,7 @@ function Product({ id, title, price, description, category, image }) {
           ))}
       </div>
       <p className="text-xs my-2 line-clamp-2">{description}</p>
-      <div className="mb-5">
+      <div className="font-bold mb-5">
         <Currency quantity={price} />
       </div>
       <button onClick={addItemToBasket} className="mt-auto button">
