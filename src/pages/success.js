@@ -6,7 +6,7 @@ import Header from "../components/Header";
 function Success() {
   const router = useRouter();
   return (
-    <div className=" bg-gray-100 h-screen">
+    <div className=" bg-gray-100 h-screen shadow-lg rounded-lg">
       <Header />
       <main className="max-w-screen-lg mx-auto">
         <div className="flex flex-col p-10 bg-white">
